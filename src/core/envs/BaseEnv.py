@@ -10,8 +10,13 @@ class BaseEnv(ABC, gym.Env):
         self.max_turn = max_turn
         self.random_init = random_init
         
-        self.observation_space = gym.spaces.Box(low=0, high=len(self.mat) - 1, shape=(1,), dtype=np.int32)
-        self.action_space = gym.spaces.Box(low=0, high=self.mat.shape[1] - 1, shape=(1,), dtype=np.int32)
+        self.observation_space = gym.spaces.Box(
+            low=np.array([0, 0], dtype=np.int32),
+            high=np.array([len(self.mat) - 1, self.mat.shape[1]], dtype=np.int32),
+            shape=(2,),
+            dtype=np.int32,
+        )
+        self.action_space = gym.spaces.Discrete(self.mat.shape[1])
 
         self.num_leave_compute = num_leave_compute
         self.leave_threshold = leave_threshold
@@ -20,7 +25,7 @@ class BaseEnv(ABC, gym.Env):
 
     @property
     def state(self):
-        state = np.array([self.cur_user, self.action])
+        state = np.array([self.cur_user, self.action], dtype=np.int32)
         return state
     
     def __user_generator(self):
@@ -35,6 +40,7 @@ class BaseEnv(ABC, gym.Env):
         return item
 
     def step(self, action):
+        action = int(action)
         self.action = action
         t = self.total_turn
         terminated = self._determine_whether_to_leave(t, action)
@@ -42,7 +48,7 @@ class BaseEnv(ABC, gym.Env):
             terminated = True
         self._add_action_to_history(t, action)
 
-        reward = self.mat[self.cur_user, action]
+        reward = float(self.mat[self.cur_user, action])
 
         self.cum_reward += reward
         self.total_turn += 1
@@ -51,7 +57,13 @@ class BaseEnv(ABC, gym.Env):
 
         return self.state, reward, terminated, truncated, {'cum_reward': self.cum_reward}
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+        
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
         self.cum_reward = 0
         self.total_turn = 0
         self.cur_user = self.__user_generator()

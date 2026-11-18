@@ -19,15 +19,17 @@ def parse_args_processed():
 
 
 filename_big = os.path.join(DATAPATH, "big_matrix.csv")
-df_big = pd.read_csv(filename_big)
 filename_small = os.path.join(DATAPATH, "small_matrix.csv")
-df_small = pd.read_csv(filename_small)
 
 filepath_processed_big = os.path.join(DATAPATH, "big_matrix_processed.csv")
 filepath_processed_small = os.path.join(DATAPATH, "small_matrix_processed.csv")
 
 def get_normalized_data():
     args = parse_args_processed()
+
+    df_big = pd.read_csv(filename_big)
+    df_small = pd.read_csv(filename_small)
+
 
     if args.method == "maxmin":
         duration_max = max(max(df_big['video_duration']),max(df_small['video_duration']))
@@ -47,8 +49,8 @@ def get_normalized_data():
     df = pd.concat([df_big, df_small], axis=0)
 
     if args.method == "maxmin":
-        max_y = df[["video_id", "watch_ratio"]].groupby("video_id").agg(max)["watch_ratio"]
-        min_y = df[["video_id", "watch_ratio"]].groupby("video_id").agg(min)["watch_ratio"]
+        max_y = df[["video_id", "watch_ratio"]].groupby("video_id").agg("max")["watch_ratio"]
+        min_y = df[["video_id", "watch_ratio"]].groupby("video_id").agg("min")["watch_ratio"]
         df_big["watch_ratio_normed"] = (df_big["watch_ratio"].to_numpy() - min_y.loc[df_big["video_id"]].to_numpy()) / \
                                        (max_y.loc[df_big["video_id"]].to_numpy() - min_y.loc[df_big["video_id"]].to_numpy())
         df_small["watch_ratio_normed"] = (df_small["watch_ratio"].to_numpy() - min_y.loc[df_small["video_id"]].to_numpy()) / \
