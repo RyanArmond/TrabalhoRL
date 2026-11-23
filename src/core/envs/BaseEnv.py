@@ -78,12 +78,17 @@ class BaseEnv(ABC, gym.Env):
         self.history_action = {}
         self.sequence_action = []
         self.max_history = 0
+        self.valid_actions = np.ones(self.mat.shape[1], dtype=bool)
 
     def _add_action_to_history(self, t, action):
         self.sequence_action.append(action)
         self.history_action[t] = action
+        self.valid_actions[action] = False
         assert self.max_history == t
         self.max_history += 1
+
+    def action_masks(self) -> np.ndarray:
+        return self.valid_actions
 
     def seed(self, sd=0):
         torch.manual_seed(sd)

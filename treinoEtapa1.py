@@ -34,7 +34,6 @@ env_ppo = Monitor(KuaiEnv(), filename="logs/ppo")
 modelo_ppo = PPO(
     policy="MlpPolicy",
     env=env_ppo,
-    learning_rate=3e-4,
     n_steps=1024,
     batch_size=128,
     ent_coef=0.01,

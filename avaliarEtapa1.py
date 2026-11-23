@@ -22,7 +22,7 @@ for ep in range(100):
     done = False
     while not done:
         acao = env.action_space.sample()
-        obs, recompensa, terminated, truncated, info = env.step(acao)
+        obs, reward, terminated, truncated, info = env.step(acao)
         done = terminated or truncated
     recompensas_aleatorio.append(info["cum_reward"])
     turnos_aleatorio.append(env.env.total_turn)
