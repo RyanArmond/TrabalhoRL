@@ -5,17 +5,47 @@ import random
 import torch
 
 class BaseEnv(ABC, gym.Env):
-    def __init__(self, num_leave_compute, leave_threshold, max_turn, random_init):
+    def __init__(self, num_leave_compute, leave_threshold, max_turn, random_init, obs_mode="original"):
         
         self.max_turn = max_turn
         self.random_init = random_init
+        self.obs_mode = obs_mode
+        self.history_window = 5
         
-        self.observation_space = gym.spaces.Box(
-            low=np.array([0, 0], dtype=np.int32),
-            high=np.array([len(self.mat) - 1, self.mat.shape[1]], dtype=np.int32),
-            shape=(2,),
-            dtype=np.int32,
-        )
+        if self.obs_mode == "original":
+            self.observation_space = gym.spaces.Box(
+                low=np.array([0, 0], dtype=np.int32),
+                high=np.array([len(self.mat) - 1, self.mat.shape[1]], dtype=np.int32),
+                shape=(2,),
+                dtype=np.int32,
+            )
+        else:
+            usuario_dim = self.caracteristicas_usuario.shape[1] # 25
+            video_dim = self.caracteristicas_video.shape[1] # 32
+            video_min = float(np.min(self.caracteristicas_video)) - 1.0
+            video_max = float(np.max(self.caracteristicas_video)) + 1.0
+
+            if self.obs_mode in ("ultimo", "media_5"):
+                n_video_quant = 1 # 25 + 32 = 57
+            elif self.obs_mode == "ultimos_5":
+                n_video_quant = self.history_window # 25 + 5 * 32 = 185
+            else:
+                raise ValueError(
+                    f"obs_mode inválido: '{self.obs_mode}'. Use 'original', 'ultimo', 'ultimos_5' ou 'media_5'."
+                )
+            
+            low = np.concatenate([
+                np.zeros(usuario_dim, dtype=np.float32),
+                np.full(n_video_quant * video_dim, video_min, dtype=np.float32),
+            ])
+
+            high = np.concatenate([
+                np.ones(usuario_dim, dtype=np.float32),
+                np.full(n_video_quant * video_dim, video_max, dtype=np.float32),
+            ])
+
+            self.observation_space = gym.spaces.Box(low=low, high=high, shape=low.shape, dtype=np.float32)
+
         self.action_space = gym.spaces.Discrete(self.mat.shape[1])
 
         self.num_leave_compute = num_leave_compute
@@ -25,9 +55,38 @@ class BaseEnv(ABC, gym.Env):
 
     @property
     def state(self):
-        state = np.array([self.cur_user, self.action], dtype=np.int32)
-        return state
-    
+        if self.obs_mode == "original":
+            return np.array([self.cur_user, self.action], dtype=np.int32)
+         
+        vetor_usuario = self.caracteristicas_usuario[self.cur_user] # 25 dimensões
+        video_dim = self.caracteristicas_video.shape[1]
+
+        if self.obs_mode == "ultimo":
+            if len(self.sequence_action) > 0:
+                vetor_video = self.caracteristicas_video[self.sequence_action[-1]]
+            else:
+                vetor_video = np.zeros(video_dim, dtype=np.float32)
+            return np.concatenate([vetor_usuario, vetor_video]).astype(np.float32)
+        
+        elif self.obs_mode == "ultimos_5":
+            recentes = self.sequence_action[-self.history_window:] # pega até os últimos 5 vídeos
+            
+            # Coloca o mais recente primeiro
+            vetores = [self.caracteristicas_video[vid] for vid in reversed(recentes)]
+
+            # Completa com vetores de zeros se ainda tiver menos que 5 vídeos
+            while len(vetores) < self.history_window:
+                vetores.append(np.zeros(video_dim, dtype=np.float32))
+            return np.concatenate([vetor_usuario] + vetores).astype(np.float32)
+
+        elif self.obs_mode == "media_5":
+            recentes = self.sequence_action[-self.history_window:]
+            if len(recentes) > 0:
+                vetor_media = np.mean(self.caracteristicas_video[recentes], axis=0)
+            else:
+                vetor_media = np.zeros(video_dim, dtype=np.float32)
+            return np.concatenate([vetor_usuario, vetor_media]).astype(np.float32)
+
     def __user_generator(self):
         user = random.randint(0, len(self.mat) - 1)
         return user
