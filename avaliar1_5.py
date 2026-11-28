@@ -90,6 +90,6 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("grafico_treino_1_5.png", dpi=150)
-print("\nGráfico salvo em 'grafico_etapa_1_5.png'!")
+plt.savefig("graficos/etapa1/grafico_treino_1_5.png", dpi=150)
+print("\nGráfico salvo em 'graficos/etapa1/grafico_etapa_1_5.png'!")
 

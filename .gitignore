@@ -40,3 +40,7 @@ events.*
 *.pickle
 temp.*
 *.dat
+
+teste.py
+
+/graficos

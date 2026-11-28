@@ -105,7 +105,7 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("grafico_treino_etapa2.png", dpi=150)
+plt.savefig("graficos/etapa2/grafico_treino_etapa2.png", dpi=150)
 
 # Gráfico 2: Comparação dos 100 Episódios de Avaliação (Determinístico vs Estocástico)
 x = np.arange(len(resultados_avaliacao["rotulos"]))
@@ -136,6 +136,6 @@ axes2[1].legend()
 axes2[1].grid(axis="y", alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("grafico_avaliacao_etapa2.png", dpi=150)
+plt.savefig("graficos/etapa2/grafico_avaliacao_etapa2.png", dpi=150)
 
-print("\nGráficos salvos em 'grafico_treino_etapa2.png' e 'grafico_avaliacao_etapa2.png'!")
+print("\nGráficos salvos em 'graficos/etapa2/grafico_treino_etapa2.png' e 'graficos/etapa2/grafico_avaliacao_etapa2.png'!")

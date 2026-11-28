@@ -29,13 +29,10 @@ for modo in modos:
     modelo = MaskablePPO(
         policy="MlpPolicy",
         env=env,
-        n_steps=1024,
-        batch_size=128,
-        ent_coef=0.01,
         seed=7,
     )
 
-    modelo.learn(total_timesteps=20000)
+    modelo.learn(total_timesteps=500000)
     modelo.save(f"modelos/mppo_{modo}")
     
     duracao = time.time() - inicio

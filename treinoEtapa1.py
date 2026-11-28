@@ -15,15 +15,10 @@ env_dqn = Monitor(KuaiEnv(), filename="logs/dqn")
 modelo_dqn = DQN(
     policy="MlpPolicy",
     env=env_dqn,
-    learning_rate=1e-3,
-    buffer_size=50000,
-    learning_starts=500,
-    batch_size=128,
-    exploration_fraction=0.3,
 )
 
 print("Treinando DQN...")
-modelo_dqn.learn(total_timesteps=20000)
+modelo_dqn.learn(total_timesteps=100000)
 modelo_dqn.save("modelos/dqn")
 
 
@@ -34,13 +29,10 @@ env_ppo = Monitor(KuaiEnv(), filename="logs/ppo")
 modelo_ppo = PPO(
     policy="MlpPolicy",
     env=env_ppo,
-    n_steps=1024,
-    batch_size=128,
-    ent_coef=0.01,
 )
 
 print("Treinando PPO...")
-modelo_ppo.learn(total_timesteps=20000)
+modelo_ppo.learn(total_timesteps=100000)
 modelo_ppo.save("modelos/ppo")
 
 print("Treinamento concluído e modelos salvos")

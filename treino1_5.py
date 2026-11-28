@@ -23,12 +23,9 @@ env = ActionMasker(env, mask_fn)
 modelo_mppo = MaskablePPO(
     policy="MlpPolicy",
     env=env,
-    n_steps=1024,
-    batch_size=128,
-    ent_coef=0.01,
 )
 
 print("Treinando MaskablePPO...")
-modelo_mppo.learn(total_timesteps=20000)
+modelo_mppo.learn(total_timesteps=100000)
 modelo_mppo.save("modelos/maskable_ppo")
 print("Treinamento do MaskablePPO concluído e modelo salvo!")

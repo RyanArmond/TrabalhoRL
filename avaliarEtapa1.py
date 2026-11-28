@@ -52,7 +52,7 @@ df_ppo["r_media"] = df_ppo["r"].rolling(janela, min_periods=1).mean()
 df_dqn["l_media"] = df_dqn["l"].rolling(janela, min_periods=1).mean()
 df_ppo["l_media"] = df_ppo["l"].rolling(janela, min_periods=1).mean()
 
-# 5. Plotar os gráficos de Recompensa e Duração da Sessão
+# Plotar os gráficos de Recompensa e Duração da Sessão
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 axes[0].plot(df_dqn["timesteps"], df_dqn["r_media"], label="DQN", color="tab:blue")
@@ -72,5 +72,5 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("grafico_etapa1.png", dpi=150)
-print("\nGráfico salvo em 'grafico_etapa1.png'!")
+plt.savefig("graficos/etapa1/grafico_etapa1.png", dpi=150)
+print("\nGráfico salvo em 'graficos/etapa1/grafico_etapa1.png'!")
